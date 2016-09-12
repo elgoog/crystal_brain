@@ -1,16 +1,19 @@
-require "ruby_brain/version"
-require 'yaml'
-require 'pp'
+# require "./crystal_brain/*"
+require "./crystal_brain/version"
+require "yaml"
 
-module RubyBrain
-  require "ruby_brain/nodes"
-  require "ruby_brain/layer"
-  require "ruby_brain/weights"
-  require "ruby_brain/network"
-  require "ruby_brain/trainer"
-  require 'ruby_brain/exception'
-  require 'ruby_brain/training_data_manipulator'
-  
+require "./crystal_brain/weights"
+require "./crystal_brain/nodes"
+require "./crystal_brain/layer"
+require "./crystal_brain/network"
+## This fiel has not been fixed for Crystal yet
+# require "./crystal_brain/trainer"
+require "./crystal_brain/exception"
+## This fiel has not been fixed for Crystal yet
+# require "./crystal_brain/training_data_manipulator"
+
+
+module CrystalBrain
   module Nodes end
   module Trainer end
   module Exception end

@@ -1,9 +1,9 @@
 
 
 module RubyBrain
-  module Exception
+  module CrystalException
 
-    class RubyBrainError < StandardError
+    class RubyBrainError < Exception
     end
 
 

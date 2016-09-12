@@ -1,11 +1,16 @@
 module RubyBrain
   class Layer
-    attr_accessor :input_weights, :output_weights
-    attr_reader :next_node_order_index, :nodes
+    # @input_weights : Array(Array(Float64))
+    # @output_weights : Array(Array(Float64))
+
+    property :input_weights, :output_weights
+    getter :next_node_order_index, :nodes
 
     def initialize
-      @nodes = []
+      @nodes = [] of RubyBrain::Nodes::Neuron | RubyBrain::Nodes::ConstNode
       @next_node_order_index = 0
+      @input_weights = [] of Array(Float64)
+      @output_weights = [] of Array(Float64)
     end
 
     def append(node)
@@ -26,7 +31,7 @@ module RubyBrain
       end
     end
 
-    def forward_outputs(inputs=[])
+    def forward_outputs(inputs = [] of Float64)
       @nodes.map { |node| node.output_of_forward_calc(inputs) }
     end
 

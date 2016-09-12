@@ -1,14 +1,16 @@
 module RubyBrain
   class WeightContainer
     def initialize(num_units_list)
-      @w_3d = []
+      @w_3d = [] of Array(Array(Float64))
+      @w = [] of Array(Float64)
 
-      num_units_list.each_cons(2) do |num_units_on_left_layer, num_units_on_right_layer|
-        @w = []
+      num_units_list.each_cons(2) do |adjacent_layers|
+        num_units_on_left_layer, num_units_on_right_layer = adjacent_layers
+        @w = [] of Array(Float64)
         (num_units_on_left_layer + 1).times do |i|
-          @w[i] = []
+          @w << [] of Float64
           num_units_on_right_layer.times do |j|
-            @w[i][j] = Random.rand(2.0) - 1.0
+            @w[i] << Random.rand(2.0) - 1.0
           end
         end
         @w_3d << @w
@@ -56,7 +58,7 @@ module RubyBrain
 
     def dump_to_yaml(file_name=nil)
       if file_name
-        File.open file_name, 'w+' do |f|
+        File.open file_name, "w+" do |f|
           YAML.dump(@w_3d, f)
         end
       end

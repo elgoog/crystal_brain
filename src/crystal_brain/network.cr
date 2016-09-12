@@ -1,6 +1,6 @@
 module RubyBrain
   class Network
-    attr_accessor :learning_rate
+    property :learning_rate
     
     # Constructor of Network class
     # 
@@ -9,10 +9,11 @@ module RubyBrain
     #  [15, 50, 60, 10]  # => 15 inputs, hidden layer 1 with 50 units, hidden layer 2 with 60 units, 10 outputs
     # 
     # @param num_units_list [Array] Array which describes the network structure
-    def initialize(num_units_list)
-      @layers = []
+    def initialize(num_units_list : Array(Int32))
+      @layers = [] of Layer
       @num_units_list = num_units_list
       @weights_set = WeightContainer.new(@num_units_list)
+      @learning_rate = uninitialized Float64
     end
 
     def load_weights_from(weights_set_source)
@@ -26,7 +27,7 @@ module RubyBrain
 
     # Initialize the network. This method creates network actually based on the network structure Array which specified with Constructor.
     def init_network
-      @layers = []
+      @layers = [] of Layer
       layer = Layer.new
       (@num_units_list[0] + 1).times do
         layer.append Nodes::ConstNode.new
@@ -50,7 +51,10 @@ module RubyBrain
       @num_units_list[-1].times do
         layer.append Nodes::Neuron.new
       end
+
       @layers << layer
+
+      pp @layers
     end
 
     # def get_weights_as_array
@@ -65,7 +69,7 @@ module RubyBrain
         @layers.first.nodes[i].value = input
       end
 
-      a_layer_outputs = nil
+      a_layer_outputs = [] of Float64
       a_layer_inputs = @layers.first.forward_outputs
       @layers.each do |layer|
         a_layer_outputs = layer.forward_outputs(a_layer_inputs)
@@ -131,12 +135,12 @@ module RubyBrain
     # @param max_training_count [Integer] Max training count.
     # @param tolerance [Float] The Threshold to stop training. Training is stopped when RMS error reach to this value even if training count is not max_training_count.
     # @param monitoring_channels [Array<Symbol>] Specify which log should be reported. Now you can select only `:best_params_training`
-    def learn(inputs_set, outputs_set, max_training_count=50, tolerance=0.0, monitoring_channels=[])
-      raise RubyBrain::Exception::TrainingDataError if inputs_set.size != outputs_set.size
+    def learn(inputs_set, outputs_set, max_training_count=50, tolerance=0.0, monitoring_channels=[] of Symbol)
+      raise RubyBrain::CrystalException::TrainingDataError.new if inputs_set.size != outputs_set.size
       #      raise "inputs_set and outputs_set has different size!!!!" if inputs_set.size != outputs_set.size
 
-      best_error = Float::INFINITY
-      best_weights_array = []
+      best_error = Float64::INFINITY
+      best_weights_array = [] of Array(Array(Float64))
       max_training_count.times do |i_training|
         accumulated_errors = 0.0 # for rms
         inputs_set.zip(outputs_set).each do |t_input, t_output|
@@ -168,18 +172,18 @@ module RubyBrain
 
         break if rms_error <= tolerance
       end
-      if monitoring_channels.include? :best_params_training
-        File.open "best_weights_#{Time.now.to_i}.yml", 'w+' do |f|
+      if monitoring_channels.includes? :best_params_training
+        File.open "best_weights_#{Time.now.epoch}.yml", "w+" do |f|
           YAML.dump(best_weights_array, f)
         end
       end
     end
 
 
-    def learn2(inputs_set, outputs_set, max_training_count=50, tolerance=0.0, monitoring_channels=[])
+    def learn2(inputs_set, outputs_set, max_training_count=50, tolerance=0.0, monitoring_channels=[] of Symbol)
       # looks like works well for networks which has many layers... [1, 10, 10, 10, 1], [1, 100, 100, 100, 1]
       # looks like NOT works well for networks which has many units in a layer... [1, 100, 1]
-      raise RubyBrain::Exception::TrainingDataError if inputs_set.size != outputs_set.size
+      raise RubyBrain::CrystalException::TrainingDataError.new if inputs_set.size != outputs_set.size
       # raise "inputs_set and outputs_set has different size!!!!" if inputs_set.size != outputs_set.size
       initial_learning_rate = @learning_rate
 
@@ -228,7 +232,7 @@ module RubyBrain
           forward_outputs = get_forward_outputs(t_input)
           # for rms start
           total_error_of_output_nodes = forward_outputs.zip(t_output).reduce(0.0) do |a, output_pair|
-            a + ((output_pair[0] - output_pair[1])**2 / 2.0)
+            a + ((output_pair[0] - output_pair[1])**2 / 2.0) if output_pair
           end
           # end
           error_of_this_training_data = total_error_of_output_nodes / forward_outputs.size
