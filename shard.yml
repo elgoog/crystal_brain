@@ -1,0 +1,10 @@
+name: crystal_brain
+version: 0.1.0
+
+authors:
+  - elgoog
+
+description: |
+  DeepLearning/NeuralNet implementation for Crystal
+
+license: MIT
